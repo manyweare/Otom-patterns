@@ -1,0 +1,28 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Sphere.cs">
+    <Files>
+      <File FileName="Assets/Scripts/Managers/ArtManager.cs" Line="31" Column="49" />
+      <File FileName="Assets/Scripts/Managers/DotManager.cs" Line="157" Column="2" />
+      <File FileName="Assets/Scripts/Managers/GameManager.cs" Line="422" Column="1" />
+      <File FileName="Assets/Scripts/Managers/PowerUpsManager.cs" Line="59" Column="1" />
+      <File FileName="Assets/Scripts/Sphere.cs" Line="99" Column="2" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Scripts" expanded="True">
+              <Node name="Managers" expanded="True" />
+              <Node name="Sphere.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
