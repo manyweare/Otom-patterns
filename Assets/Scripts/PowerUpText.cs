@@ -7,6 +7,7 @@ public class PowerUpText : MonoBehaviour
 	public Color MyColor;
 	private Transform _myTransform;
 	private Vector3 _originalPosition, _hidePosition;
+	private GameObject myShadow;
 
 	void Awake()
 	{
@@ -14,6 +15,22 @@ public class PowerUpText : MonoBehaviour
 		_originalPosition = _myTransform.position;
 		_hidePosition = _originalPosition - new Vector3(0f, 1f, 0f);
 		guiText.color = MyColor;
+
+		InstantiateShadow();
+	}
+
+	void InstantiateShadow()
+	{
+		myShadow = new GameObject("Text Shadow");
+		myShadow.AddComponent<GUIText>();
+		myShadow.guiText.text = guiText.text;
+		myShadow.guiText.font = guiText.font;
+		myShadow.guiText.anchor = guiText.anchor;
+		myShadow.guiText.alignment = guiText.alignment;
+		myShadow.guiText.fontSize = guiText.fontSize;
+		myShadow.guiText.color = Color.black;
+		myShadow.transform.position = _myTransform.position + new Vector3(0.015f, -0.003f, -0.01f);
+		myShadow.transform.parent = _myTransform;
 	}
 
 	IEnumerator HideSelf()
@@ -39,6 +56,7 @@ public class PowerUpText : MonoBehaviour
 	{
 		yield return StartCoroutine("HideSelf");
 		guiText.text = count.ToString();
+		myShadow.guiText.text = guiText.text;
 		yield return StartCoroutine("ShowSelf");
 	}
 }

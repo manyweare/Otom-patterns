@@ -44,7 +44,7 @@ public class MainMenu : MonoBehaviour
 		var soundStatus = AudioListener.volume > 0 ? "On" : "Off";
 		SoundButton.guiText.text = "Sound " + soundStatus;
 
-		VersionText.text = "Version " + VersionNumber;
+		VersionText.text = "VERSION " + VersionNumber;
 
 		StartCoroutine("ShowSelf");
 	}

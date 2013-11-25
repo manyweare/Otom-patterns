@@ -56,19 +56,19 @@ public class PowerUpsManager : MonoBehaviour
 	void Start()
 	{
 		// Color 01 Power Up.
-		Text01.MyColor = ArtManager.Instance.ColorList[0];
+//		Text01.MyColor = ArtManager.Instance.ColorList[0];
 		TextList.Add(Text01);
 		// Color 02 Power Up.
-		Text02.MyColor = ArtManager.Instance.ColorList[1];
+//		Text02.MyColor = ArtManager.Instance.ColorList[1];
 		TextList.Add(Text02);
 		// Color 03 Power Up.
-		Text03.MyColor = ArtManager.Instance.ColorList[2];
+//		Text03.MyColor = ArtManager.Instance.ColorList[2];
 		TextList.Add(Text03);
 		// Color 04 Power Up.
-		Text04.MyColor = ArtManager.Instance.ColorList[3];
+//		Text04.MyColor = ArtManager.Instance.ColorList[3];
 		TextList.Add(Text04);
 		// Color 05 Power Up.
-		Text05.MyColor = ArtManager.Instance.ColorList[4];
+//		Text05.MyColor = ArtManager.Instance.ColorList[4];
 		TextList.Add(Text05);
 
 		GenerateButtons(Button, Bar, 5);
@@ -107,7 +107,7 @@ public class PowerUpsManager : MonoBehaviour
 			myBar.transform.position = new Vector3(myBar.transform.position.x, myBar.transform.position.y, -0.2f);
 			myBar.transform.localScale = new Vector3(myBar.transform.localScale.x * ArtManager.Instance.SCREEN_RATIO, 0.1f, 1f);
 			myBar.transform.parent = _myTransform;
-			myBar.renderer.material.color = Color.white;
+			myBar.renderer.material.color = Color.black;
 			myBar.name = "Bar0" + i.ToString();
 			barList.Add(myBar);
 			// Instantiate track.
@@ -117,12 +117,16 @@ public class PowerUpsManager : MonoBehaviour
 			myTrack.transform.localScale = new Vector3(myTrack.transform.localScale.x * ArtManager.Instance.SCREEN_RATIO, 1f, 1f);
 			myTrack.transform.parent = _myTransform;
 			myTrack.name = "Track0" + i.ToString();
+			myTrack.renderer.material = ArtManager.Instance.PatternMaterial;
+			myTrack.renderer.material.SetTexture("_Detail", ArtManager.Instance.Patterns[i - 1]);
+			myTrack.renderer.material.SetFloat("_DetailTiling", ArtManager.Instance.DETAIL_TILING);
+ 			myTrack.renderer.material.color = Color.white;
 			trackList.Add(myTrack);
-			// Alternate track colors to divide buttons.
-			if (i % 2 == 0)
-				myTrack.renderer.material.color = new Color(0.15f, 0.15f, 0.15f, 1f);
-			else
-				myTrack.renderer.material.color = new Color(0.1f, 0.1f, 0.1f, 1f);
+//			// Alternate track colors to divide buttons.
+//			if (i % 2 == 0)
+//				myTrack.renderer.material.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+//			else
+//				myTrack.renderer.material.color = new Color(0.1f, 0.1f, 0.1f, 1f);
 		}
 	}
 

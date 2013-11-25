@@ -7,11 +7,11 @@ public class Sphere : MonoBehaviour
 {
 	public GameObject CirclePrefab, HighlightPrefab, LockedPrefab;
 	[HideInInspector]
-	public Color32 CurrentColor = Color.black;
+	public Color32 CurrentColor = Color.white;
 	[HideInInspector]
 	public Color WRONG_COLOR = Color.red;
 	[HideInInspector]
-	public GameObject HighlightGameObject, LockedGameObject;
+	public GameObject myHighlight, myLocked;
 	private GameObject[] powerUpAnimPool = new GameObject[36];
 	private GameObject myMesh, myShadow;
 	private List<GameObject> coloredObjects = new List<GameObject>();
@@ -59,13 +59,7 @@ public class Sphere : MonoBehaviour
 			}
 		}
 	}
-
-	void NextTurn()
-	{
-		if (numTurnsUnlockable > 0)
-			--numTurnsUnlockable;
-	}
-
+	
 	void Awake()
 	{
 		GameEventManager.NextTurn += NextTurn;
@@ -88,9 +82,12 @@ public class Sphere : MonoBehaviour
 	void Start()
 	{
 		InstantiateMeshes();
+	}
 
-		// Change main Dot prefab collider radius based on screen ratio.
-//		_myTransform.parent.transform.GetComponent<BoxCollider2D>().size *= ArtManager.Instance.SCREEN_RATIO;
+	void NextTurn()
+	{
+		if (numTurnsUnlockable > 0)
+			--numTurnsUnlockable;
 	}
 
 	#region CONSTRUCTOR METHODS
@@ -102,14 +99,18 @@ public class Sphere : MonoBehaviour
 		myMesh = Instantiate(CirclePrefab, _myTransform.parent.position, Quaternion.identity) as GameObject;
 		myMesh.transform.localScale = ArtManager.Instance.ORIGINAL_SCALE;
 		myMesh.renderer.material = ArtManager.Instance.PatternMaterial;
+		myMesh.renderer.material.color = Color.white;
+		myMesh.renderer.material.SetFloat("_DetailTiling", ArtManager.Instance.DETAIL_TILING);
 		myMesh.name = "MyMesh";
 		myMesh.transform.parent = _myTransform;
-		coloredObjects.Add(myMesh);
 
 		InstantiateHighlightMesh(CirclePrefab);
 		InstantiateLockedMesh(LockedPrefab);
 		InstantiateShadowMesh(CirclePrefab);
 
+		coloredObjects.Add(myMesh);
+		coloredObjects.Add(myHighlight);
+		coloredObjects.Add(myLocked);
 		AssignNewRandomColor(ArtManager.Instance.ColorList, coloredObjects);
 
 		InstantiatePowerUpAnimPool(CirclePrefab);
@@ -120,7 +121,7 @@ public class Sphere : MonoBehaviour
 	    myShadow = Instantiate(prefab, _myTransform.parent.position, Quaternion.identity) as GameObject;
 	    myShadow.name = "Shadow";
 		myShadow.transform.localScale = ArtManager.Instance.ORIGINAL_SCALE;
-		myShadow.transform.localPosition += new Vector3(0.005f, -0.005f, 0.2f);
+		myShadow.transform.localPosition += new Vector3(0.007f, -0.007f, 0.2f);
 		myShadow.renderer.material = ArtManager.Instance.SimpleMaterial;
 		myShadow.renderer.material.color = Color.black - new Color(0f, 0f, 0f, 0.6f);
 	    myShadow.transform.parent = _myTransform;
@@ -129,42 +130,46 @@ public class Sphere : MonoBehaviour
 	public void InstantiateHighlightMesh(GameObject prefab)
 	{
 		// This is the prefab that activates when player taps on dot.
-		HighlightGameObject = Instantiate(prefab, _myTransform.position, Quaternion.identity) as GameObject;
-		HighlightGameObject.name = "Highlight";
-		HighlightGameObject.transform.localPosition += new Vector3(0f, 0f, 0.1f);
-		HighlightGameObject.renderer.material = ArtManager.Instance.SimpleMaterial;
-		HighlightGameObject.transform.parent = _myTransform;
-		coloredObjects.Add(HighlightGameObject);
-		HighlightGameObject.SetActive(false);
+		myHighlight = Instantiate(prefab, _myTransform.position, Quaternion.identity) as GameObject;
+		myHighlight.name = "Highlight";
+		myHighlight.transform.localPosition += new Vector3(0f, 0f, 0.1f);
+		myHighlight.renderer.material = ArtManager.Instance.SimpleMaterial;
+		myHighlight.renderer.material.color = Color.white;
+		myHighlight.transform.parent = _myTransform;
+		coloredObjects.Add(myHighlight);
+		myHighlight.SetActive(false);
 	}
 	
 	public void InstantiateLockedMesh(GameObject prefab)
 	{
-	    LockedGameObject = Instantiate(prefab, _myTransform.position, Quaternion.identity) as GameObject;
-		LockedGameObject.name = "Locked";
-		LockedGameObject.renderer.material.SetTexture("_Detail", myMesh.renderer.material.GetTexture("_Detail"));
-		LockedGameObject.renderer.material.SetFloat("_DetailTiling", myMesh.renderer.material.GetFloat("_DetailTiling"));
-		_lockedTransform = LockedGameObject.transform;
+	    myLocked = Instantiate(prefab, _myTransform.position, Quaternion.identity) as GameObject;
+		myLocked.name = "Locked";
+		myLocked.renderer.material = ArtManager.Instance.PatternMaterial;
+		myLocked.renderer.material.color = Color.white;
+		myLocked.renderer.material.SetTexture("_Detail", myMesh.renderer.material.GetTexture("_Detail"));
+		myLocked.renderer.material.SetFloat("_DetailTiling", myMesh.renderer.material.GetFloat("_DetailTiling"));
+		_lockedTransform = myLocked.transform;
 	    _lockedTransform.localScale = Vector3.zero;
 	    _lockedTransform.parent = _myTransform;
 
 		loopTween = HOTween.To(_lockedTransform, 3f, ArtManager.Instance.lockLoopParms);
 		loopTween.Pause();
 
-		coloredObjects.Add(LockedGameObject);
-		LockedGameObject.SetActive(false);
+		myLocked.SetActive(false);
 	}
 	
 	void InstantiatePowerUpAnimPool(GameObject prefab)
 	{
 		for (int i = 0; i < powerUpAnimPool.Length; i++)
 		{
-			powerUpAnimPool[i] = Instantiate(prefab, _myTransform.position + new Vector3(0f, 0f, -2f), Quaternion.identity) as GameObject;
+			powerUpAnimPool[i] = Instantiate(prefab, _myTransform.position, Quaternion.identity) as GameObject;
 			powerUpAnimPool[i].name = "PowerUp" + i.ToString();
-			powerUpAnimPool[i].renderer.material.SetTexture("_Detail", myMesh.renderer.material.GetTexture("_Detail"));
-			powerUpAnimPool[i].renderer.material.SetFloat("_DetailTiling", myMesh.renderer.material.GetFloat("_DetailTiling"));
-			powerUpAnimPool[i].transform.localScale = myMesh.transform.localScale * 0.75f;
-			powerUpAnimPool[i].transform.parent = _myTransform;
+			powerUpAnimPool[i].renderer.material = ArtManager.Instance.SimpleMaterial;
+//			powerUpAnimPool[i].renderer.material.SetTexture("_Detail", myMesh.renderer.material.GetTexture("_Detail"));
+//			powerUpAnimPool[i].renderer.material.SetFloat("_DetailTiling", myMesh.renderer.material.GetFloat("_DetailTiling"));
+			// Temporarily assign it white color. The correct color will be assigned when they animate.
+			powerUpAnimPool[i].renderer.material.color = CurrentColor;
+//			powerUpAnimPool[i].transform.parent = _myTransform;
 			powerUpAnimPool[i].SetActive(false);
 		}
 	}
@@ -181,14 +186,17 @@ public class Sphere : MonoBehaviour
 		{
 			// Assign new material.
 			if (ArtManager.Instance.Patterns[k] != null)
-			{
 				objs[i].renderer.material.SetTexture("_Detail", ArtManager.Instance.Patterns[k]);
-				objs[i].renderer.material.SetFloat("_DetailTiling", 15f * ArtManager.Instance.SCREEN_RATIO);
-			}
+
 			// Assign new color.
-			objs[i].renderer.material.color = CurrentColor;
+//			objs[i].renderer.material.color = CurrentColor;
+
+			// Use white if patterns are what defines a circle instead of colors.
+//			objs[i].renderer.material.color = Color.white;
 		}
 	}
+
+	#region ANIMATION METHODS
 
 	public void AnimateBirth()
 	{
@@ -197,8 +205,8 @@ public class Sphere : MonoBehaviour
 
 		myMesh.SetActive(true);
 		myShadow.SetActive(true);
-		HighlightGameObject.SetActive(false);
-		LockedGameObject.SetActive(false);
+		myHighlight.SetActive(false);
+		myLocked.SetActive(false);
 
 		AssignNewRandomColor(ArtManager.Instance.ColorList, coloredObjects);
 
@@ -229,16 +237,16 @@ public class Sphere : MonoBehaviour
 
 	public void ActivateHighlight()
 	{
-		if (HighlightGameObject.activeSelf)
+		if (myHighlight.activeSelf)
 			return;
 
-		HighlightGameObject.SetActive(true);
-		HighlightGameObject.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-		HOTween.To(HighlightGameObject.transform, 0.3f, ArtManager.Instance.highlightParms);
+		myHighlight.SetActive(true);
+		myHighlight.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+		HOTween.To(myHighlight.transform, 0.3f, ArtManager.Instance.highlightParms);
 		if (sameColor)
-			HighlightGameObject.renderer.material.color = ArtManager.Instance.CHAIN_COLOR;
+			myHighlight.renderer.material.color = CurrentColor;
 		else
-			HighlightGameObject.renderer.material.color = WRONG_COLOR;
+			myHighlight.renderer.material.color = WRONG_COLOR;
 	}
     
 	public void DeactivateHighlight()
@@ -248,22 +256,22 @@ public class Sphere : MonoBehaviour
 
 	IEnumerator CoDeactivateHighlight()
 	{
-		if (!HighlightGameObject.activeSelf)
+		if (!myHighlight.activeSelf)
 			yield break;
 
-		HOTween.To(HighlightGameObject.transform, 0.2f, "localScale", Vector3.zero);
+		HOTween.To(myHighlight.transform, 0.2f, "localScale", Vector3.zero);
 		yield return new WaitForSeconds(0.2f);
-		HighlightGameObject.SetActive(false);
+		myHighlight.SetActive(false);
 	}
 
 	public void WrongSphere()
 	{
-		HighlightGameObject.renderer.material.color = WRONG_COLOR;
+		myHighlight.renderer.material.color = WRONG_COLOR;
 	}
  
 	public void SquareSphere()
 	{
-		HOTween.To(HighlightGameObject.transform, 0.2f, "localScale", new Vector3(1.7f, 1.7f, 1.7f));
+		HOTween.To(myHighlight.transform, 0.2f, "localScale", new Vector3(1.7f, 1.7f, 1.7f));
 	}
 
 	public void LockSelf()
@@ -273,16 +281,17 @@ public class Sphere : MonoBehaviour
  
 	IEnumerator CoLockSelf()
 	{
-		if (LockedGameObject.activeSelf)
+		if (myLocked.activeSelf)
 			yield break;
 
 		myMesh.SetActive(false);
 		myShadow.SetActive(false);
-		LockedGameObject.SetActive(true);
+		myLocked.SetActive(true);
 		_lockedTransform.localScale = Vector3.zero;
 		HOTween.To(_lockedTransform, 0.4f, ArtManager.Instance.lockParms);
 		yield return new WaitForSeconds(0.4f);
 		loopTween.Restart();
+		isLocked = true;
 	}
  
 	public void UnlockSelf()
@@ -292,16 +301,17 @@ public class Sphere : MonoBehaviour
  
 	IEnumerator CoUnlockSelf()
 	{
-		if (!LockedGameObject.activeSelf)
+		if (!myLocked.activeSelf)
 			yield break;
 
 		loopTween.Pause();
-		LockedGameObject.SetActive(true);
+		myLocked.SetActive(true);
 		HOTween.To(_lockedTransform, 0.4f, ArtManager.Instance.unlockParms);
 		yield return new WaitForSeconds(0.4f);
-		LockedGameObject.SetActive(false);
+		myLocked.SetActive(false);
 		myMesh.SetActive(true);
 		myShadow.SetActive(true);
+		isLocked = false;
 	}
 	
 	public void HighlightLock()
@@ -345,7 +355,7 @@ public class Sphere : MonoBehaviour
 	// This helps inform the player that the dots she chained are added to power up score.
 	public IEnumerator AnimateToPowerUp()
 	{
-		if (myMesh.renderer.material.color == ArtManager.Instance.GREYDOT_COLOR)
+		if ((Color)CurrentColor == (Color)ArtManager.Instance.GREYDOT_COLOR)
 		{
 			AnimateDeath();
 			yield break;
@@ -361,15 +371,13 @@ public class Sphere : MonoBehaviour
 		int numAnims = 1;
 		
 		// If dot is white, we're gonna animate 5 dots going towards all power up colors.
-		if (myMesh.renderer.material.color == ArtManager.Instance.WHITEDOT_COLOR)
+		if ((Color)CurrentColor == (Color)ArtManager.Instance.WHITEDOT_COLOR)
 		{
 			numAnims = 5;
 			for (int j = 0; j < numAnims; j++)
 			{
 				// Make an array with the positions of all power up buttons.
-				var targetPos = Vector3.zero;
-				targetPos = PowerUpsManager.Instance.TextList[j].transform.position;
-				positions[j] = Camera.main.ViewportToWorldPoint(targetPos);
+				positions[j] = Camera.main.ViewportToWorldPoint(PowerUpsManager.Instance.TextList[j].transform.position);
 			}
 		}
 		else
@@ -380,19 +388,19 @@ public class Sphere : MonoBehaviour
 		{
 			// Activate a circle from the pool. This guy will animate towards the power up button.
 			powerUpAnimPool[i].SetActive(true);
-			powerUpAnimPool[i].transform.position = _myTransform.position;
-			powerUpAnimPool[i].transform.localScale = myMesh.transform.localScale * 0.75f;
+			powerUpAnimPool[i].transform.localScale = _myTransform.localScale;
+			powerUpAnimPool[i].transform.position = _myTransform.position + new Vector3(0f, 0f, 0.1f);
 			powerUpAnimPool[i].renderer.material.color = CurrentColor;
 //			Destroy(powerUpAnimPool[i], 0.5f);
 			
 			HOTween.To(powerUpAnimPool[i].transform, 0.5f, 
-			           new TweenParms().Prop("position", positions[i]).Ease(EaseType.EaseInOutExpo));
-			HOTween.To(powerUpAnimPool[i].transform, 0.5f,
-			           new TweenParms().Prop("localScale", Vector3.zero).Ease(EaseType.EaseInExpo));
-//			HOTween.To(powerUpAnimPool[i].renderer.material, 0.4f,
-//			           new TweenParms().Prop("color", powerUpAnimPool[i].renderer.material.color - new Color(0f, 0f, 0f, 1f)).Ease(EaseType.EaseInExpo));
+			           new TweenParms().Prop("position", new Vector3(positions[i].x, positions[i].y - 0.02f, -0.2f)).Ease(EaseType.EaseInExpo));
+			HOTween.To(powerUpAnimPool[i].transform, 0.7f,
+			           new TweenParms().Prop("localScale", powerUpAnimPool[i].transform.localScale * 0.5f).Ease(EaseType.EaseInExpo));
+			HOTween.To(powerUpAnimPool[i].renderer.material, 0.7f,
+			           new TweenParms().Prop("color", powerUpAnimPool[i].renderer.material.color - new Color(0f, 0f, 0f, 1f)).Ease(EaseType.EaseInExpo));
 			
-			yield return new WaitForSeconds(0.1f);
+			yield return null;
 		}
 		
 //		// Replenish pool.
@@ -419,4 +427,6 @@ public class Sphere : MonoBehaviour
 		pulseSequence.Rewind();
 		pulseSequence.Pause();
 	}
+
+	#endregion
 }

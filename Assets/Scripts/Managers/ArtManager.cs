@@ -25,6 +25,7 @@ public class ArtManager : MonoBehaviour
 	public Color32 WHITEDOT_COLOR = new Color32(255, 255, 255, 255); // White
 	public Color32 CHAIN_COLOR = new Color32(255, 255, 255, 255);
 	public Material SimpleMaterial, PatternMaterial;
+	public float DETAIL_TILING = 10f;
 	public Texture[] Patterns = new Texture[7];
 	public TweenParms highlightParms = new TweenParms();
 	public TweenParms deathParms = new TweenParms();
@@ -39,6 +40,7 @@ public class ArtManager : MonoBehaviour
 	public Color LOCKED_COLOR = Color.white;
 	[HideInInspector]
 	public float SCREEN_RATIO = 1f;
+	private Vector3 LOCKED_SCALE = Vector3.one * 0.7f;
 
 	public static ArtManager Instance
 	{
@@ -61,6 +63,7 @@ public class ArtManager : MonoBehaviour
 
 		SCREEN_RATIO = MainCamera.Instance.screenRatio;
 		ORIGINAL_SCALE = Vector3.one * SCREEN_RATIO;
+		DETAIL_TILING *= SCREEN_RATIO;
 		
 		DataMeshList.Add(CircleMesh);
 		
@@ -82,19 +85,19 @@ public class ArtManager : MonoBehaviour
 		deathParms.Prop("localScale", Vector3.zero);
 		deathParms.Ease(EaseType.EaseInBack);
 		
-		lockParms.Prop("localScale", ORIGINAL_SCALE * 1.2f);
+		lockParms.Prop("localScale", LOCKED_SCALE);
 		lockParms.Ease(EaseType.EaseOutBack);
 		
-		resetLockParms.Prop("localScale", ORIGINAL_SCALE * 0.3f);
+		resetLockParms.Prop("localScale", LOCKED_SCALE * 0.3f);
 		resetLockParms.Ease(EaseType.EaseOutExpo);
 		
-		unlockParms.Prop("localScale", ORIGINAL_SCALE * 3f);
+		unlockParms.Prop("localScale", LOCKED_SCALE * 3f);
 		unlockParms.Ease(EaseType.EaseInBack);
 		
-		highlightLockParms.Prop("localScale", ORIGINAL_SCALE * 1.5f);
+		highlightLockParms.Prop("localScale", LOCKED_SCALE * 1.1f);
 		highlightLockParms.Ease(EaseType.EaseOutBack);
 		
-		lockLoopParms.Prop("localScale", ORIGINAL_SCALE * 1.1f);
+		lockLoopParms.Prop("localScale", LOCKED_SCALE * 1.1f);
 		lockLoopParms.Loops(-1, LoopType.Yoyo);
 		lockLoopParms.Ease(EaseType.EaseInOutCubic);
 		

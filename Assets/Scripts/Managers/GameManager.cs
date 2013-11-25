@@ -207,7 +207,7 @@ public class GameManager : MonoBehaviour
 			++Score;
 			
 			// Add to color score, also one by one.
-			AddColorScore(chainList[i].CirclePrefab.renderer.material.color);
+			AddColorScore(chainList[i].CurrentColor);
 			yield return StartCoroutine(DotManager.Instance.DestroySphere(chainList[i]));
 			yield return null;
 		}
@@ -268,7 +268,7 @@ public class GameManager : MonoBehaviour
 		var list = DotManager.Instance.cleanList;
 		foreach (Sphere dot in list)
 		{
-			var thisDot = dot.CirclePrefab;
+			Sphere thisDot = dot.GetComponent<Sphere>();
 			LayerMask layer = 1 << LayerMask.NameToLayer("Spheres");
 			Collider[] hitColliders = Physics.OverlapSphere(dot.transform.position, ACCEPTABLE_DISTANCE - 0.05f, layer);
 			foreach (Collider hit in hitColliders)
@@ -276,7 +276,7 @@ public class GameManager : MonoBehaviour
 				Sphere hitDot = hit.GetComponent<Sphere>();
 				bool isLocked = hitDot.isLocked;
 				bool isSelf = hit.transform.parent.gameObject.name == dot.transform.parent.name;
-				bool hasSameColorNeighbor = (Color)thisDot.renderer.material.color == (Color)hitDot.CurrentColor;
+				bool hasSameColorNeighbor = (Color)thisDot.CurrentColor == (Color)hitDot.CurrentColor;
 				bool hasWhiteNeighbor = (Color)hitDot.CurrentColor == (Color)ArtManager.Instance.WHITEDOT_COLOR;
 				if (!isLocked && !isSelf && (hasSameColorNeighbor || hasWhiteNeighbor))
 					return false;

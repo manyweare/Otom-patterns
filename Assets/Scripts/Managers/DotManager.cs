@@ -91,9 +91,7 @@ public class DotManager : MonoBehaviour
 			// If the current dot is locked, do nothing.
 			if (activeSphere.isLocked)
 				return;
-			
-			GameObject activeMesh = activeSphere.CirclePrefab;
-			
+
 			// First dot in chain.
 			if (Input.GetTouch(0).phase == TouchPhase.Began && chainList.Count == 0)
 				FirstDotInChain(activeSphere);
@@ -106,7 +104,7 @@ public class DotManager : MonoBehaviour
 				if (distance > 0f && distance < GameManager.Instance.ACCEPTABLE_DISTANCE)
 				{
 					// Then check for color.
-					if (ValidateChainColor(activeMesh.renderer.material.color) && (wrongChainList.Count == 0))
+					if (ValidateChainColor(activeSphere) && (wrongChainList.Count == 0))
 						HandleCorrectChain(activeSphere);
 					else if (!wrongChainList.Contains(activeSphere))
 						HandleWrongChain(activeSphere);
@@ -130,9 +128,7 @@ public class DotManager : MonoBehaviour
 			// If the current dot is locked, do nothing.
 			if (activeSphere.isLocked)
 				return;
-			
-			GameObject activeMesh = activeSphere.CirclePrefab;
-			
+
 			// If this is the first dot in the chain.
 			if (chainList.Count == 0)
 				FirstDotInChain(activeSphere);
@@ -145,7 +141,7 @@ public class DotManager : MonoBehaviour
 				if (distance > 0f && distance < GameManager.Instance.ACCEPTABLE_DISTANCE)
 				{
 					// Then check for color.
-					if (ValidateChainColor(activeMesh.renderer.material.color) && (wrongChainList.Count == 0))
+					if (ValidateChainColor(activeSphere) && (wrongChainList.Count == 0))
 						HandleCorrectChain(activeSphere);
 					else if (!wrongChainList.Contains(activeSphere))
 						HandleWrongChain(activeSphere);
@@ -154,9 +150,10 @@ public class DotManager : MonoBehaviour
 		}
 	}
 	
-	bool ValidateChainColor(Color c)
+	bool ValidateChainColor(Sphere s)
 	{
-		var result = false;
+		Color c = s.CurrentColor;
+		bool result = false;
 		// If chain color was white, but the active dot isn't, set chain color to new color.
 		if (ChainColor == ArtManager.Instance.WHITEDOT_COLOR && c != ChainColor)
 		{
@@ -174,7 +171,7 @@ public class DotManager : MonoBehaviour
 		if (s != null)
 			s.ActivateHighlight();
 		chainList.Add(s);
-		ChainColor = chainList[0].CirclePrefab.renderer.material.color;
+		ChainColor = chainList[0].CurrentColor;
 		
 		ChainlineManager.Instance.AddPointToChainLine(s.transform.parent.transform.position, 0);
 		
@@ -192,8 +189,8 @@ public class DotManager : MonoBehaviour
 			chainList.Add(s);
 			// If the current chain color is white, make this the active chain color.
 			if (ChainColor == ArtManager.Instance.WHITEDOT_COLOR)
-				ChainColor = chainList[chainList.Count - 1].CirclePrefab.renderer.material.color;
-			AudioManager.Instance.PlayDotSound(chainList.Count, s.CirclePrefab.renderer.material.color, true);
+				ChainColor = chainList[chainList.Count - 1].CurrentColor;
+			AudioManager.Instance.PlayDotSound(chainList.Count, s.CurrentColor, true);
 			
 			ChainlineManager.Instance.AddPointToChainLine(s.transform.position, chainList.Count - 1);
 			
@@ -217,7 +214,7 @@ public class DotManager : MonoBehaviour
 			RemoveLastHighlight();
 			chainList[chainList.Count - 1].DeactivateHighlight();
 			chainList.RemoveAt(chainList.Count - 1);
-			AudioManager.Instance.PlayDotSound(chainList.Count, s.CirclePrefab.renderer.material.color, true);
+			AudioManager.Instance.PlayDotSound(chainList.Count, s.CurrentColor, true);
 			
 			ChainlineManager.Instance.AddPointToChainLine(s.transform.position, chainList.Count - 1);
 			
@@ -241,7 +238,7 @@ public class DotManager : MonoBehaviour
 			}
 		}
 		wrongChainList.Add(s);
-		AudioManager.Instance.PlayDotSound(wrongChainList.Count, s.CirclePrefab.renderer.material.color, false);
+		AudioManager.Instance.PlayDotSound(wrongChainList.Count, s.CurrentColor, false);
 	}
 	
 	#endregion
